@@ -1,0 +1,34 @@
+Based on your Job Tracker Pro schema and backend, here are features you could add — grouped by value:
+High Impact (users will notice immediately)
+
+AI Resume Tailoring — paste a job description, get a tailored version of their resume with keyword suggestions. You already have jobDescription and resumeUsed fields, perfect pairing.
+Application Health Score — a score per job (0–100) based on: how long since applied, follow-up sent?, interview scheduled?, salary match. Surfaced as a ring/gauge on each card.
+Smart Follow-up Detector — auto-flag jobs where appliedDate was 7+ days ago, no followUpEmailSent, status still "Applied". Show a dedicated "Action Needed" section on dashboard.
+Offer Comparison Table — when multiple jobs hit "Offer Received", side-by-side comparison of salary, location, job type, company rating.
+
+Productivity
+
+Bulk Status Update from Kanban — select multiple cards, drag the group to a column.
+Interview Question Bank — store questions from questionsAsked across all rounds, searchable, filterable by company/role/topic. You already capture questionsAsked in interviewRoundSchema.
+Email Templates Library — you have AI follow-up generation already; expand it to a saved templates page (thank-you emails, offer negotiation, withdrawal).
+Quick Status Bar — keyboard shortcut (e.g. S) to open a command palette to change status without opening the full form.
+
+Analytics Depth
+
+Funnel Chart — Not Applied → Applied → Interview → Offer → Selected. Shows your conversion drop-off visually.
+Response Rate by Source — which platform (LinkedIn vs Naukri vs Referral) actually gets you to interview stage. You have source indexed.
+Time-to-Response Tracker — average days between appliedDate and first status change, per company or per source.
+
+Engagement / Gamification
+
+Weekly Goal Tracker — you already have dailyGoal and currentStreak on the User model. Add a weekly summary card with a mini bar chart showing applications per day this week.
+Milestone Badges — "First application", "10 applications", "First interview", "Offer received". Low engineering effort, high motivation.
+
+Quality of Life
+
+Calendar View — map interviewDate, followUpDate, offerDeadline onto a month calendar. You have /calendar route already stubbed in your nav.
+Dark/Light Mode Toggle — your User model has preferences.theme already stored; just needs the UI wiring.
+CSV Import with Column Mapper — you have /jobs/import already; add a UI that lets users map their spreadsheet columns to your fields.
+Company Logo Auto-fetch — use Clearbit or Brandfetch API with companyName to show logos on cards. Visual upgrade with near-zero backend work.
+
+Which of these interests you most? I can build out the UI for any of them.

@@ -1,5 +1,4 @@
-import { Toaster } from "react-hot-toast";
-import { useState } from "react";
+import { toast } from "react-toastify";import { useState } from "react";
 import { updateJob } from "../../../api/jobs.api";
 
 const STATUSES = [

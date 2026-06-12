@@ -136,6 +136,7 @@ export default function CompleteProfilePage() {
     setSaveError("");
     try {
       const token = localStorage.getItem("token");
+      const BASE = import.meta.env.VITE_API_URL;
       await axios.post(
         "http://localhost:5000/api/v1/profile",
         { ...formData, skills, education, experience },

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { NavLink } from "react-router-dom";
 
 const NAV = [
@@ -40,7 +41,6 @@ const NAV = [
         <polyline points="14 2 14 8 20 8" />
         <line x1="16" y1="13" x2="8" y2="13" />
         <line x1="16" y1="17" x2="8" y2="17" />
-        <polyline points="10 9 9 9 8 9" />
       </svg>
     ),
   },
@@ -84,52 +84,15 @@ const NAV = [
   },
 ];
 
-export default function DashboardSidebar({ user }) {
+function NavItems({ user, onNavigate }) {
   return (
-    <aside className="hidden lg:flex w-[220px] xl:w-[240px] shrink-0 flex-col bg-white border-r border-[#E2E8F0] min-h-screen sticky top-0">
-      {/* Logo */}
-      <div className="flex items-center gap-2.5 px-5 py-5 border-b border-[#F1F5F9]">
-        <div className="w-8 h-8 rounded-lg bg-[#26A9C9] flex items-center justify-center">
-          <svg width="16" height="16" viewBox="0 0 32 32" fill="none">
-            <rect x="4" y="4" width="10" height="10" rx="2" fill="white" />
-            <rect
-              x="18"
-              y="4"
-              width="10"
-              height="10"
-              rx="2"
-              fill="white"
-              fillOpacity="0.6"
-            />
-            <rect
-              x="4"
-              y="18"
-              width="10"
-              height="10"
-              rx="2"
-              fill="white"
-              fillOpacity="0.6"
-            />
-            <rect
-              x="18"
-              y="18"
-              width="10"
-              height="10"
-              rx="2"
-              fill="white"
-              fillOpacity="0.3"
-            />
-          </svg>
-        </div>
-        <span className="text-[#0F172A] text-[15px] font-semibold">Acme</span>
-      </div>
-
-      {/* Nav */}
+    <>
       <nav className="flex-1 px-3 py-4 space-y-0.5">
         {NAV.map(({ label, path, icon }) => (
           <NavLink
             key={path}
             to={path}
+            onClick={onNavigate}
             className={({ isActive }) =>
               `flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13.5px] font-medium transition-colors ${
                 isActive
@@ -160,6 +123,95 @@ export default function DashboardSidebar({ user }) {
           </div>
         </div>
       </div>
-    </aside>
+    </>
+  );
+}
+
+function Logo() {
+  return (
+    <div className="flex items-center gap-2.5">
+      <div className="w-8 h-8 rounded-lg bg-[#26A9C9] flex items-center justify-center">
+        <svg width="16" height="16" viewBox="0 0 32 32" fill="none">
+          <rect x="4" y="4" width="10" height="10" rx="2" fill="white" />
+          <rect
+            x="18"
+            y="4"
+            width="10"
+            height="10"
+            rx="2"
+            fill="white"
+            fillOpacity="0.6"
+          />
+          <rect
+            x="4"
+            y="18"
+            width="10"
+            height="10"
+            rx="2"
+            fill="white"
+            fillOpacity="0.6"
+          />
+          <rect
+            x="18"
+            y="18"
+            width="10"
+            height="10"
+            rx="2"
+            fill="white"
+            fillOpacity="0.3"
+          />
+        </svg>
+      </div>
+      <span className="text-[#0F172A] text-[15px] font-semibold">Acme</span>
+    </div>
+  );
+}
+
+export default function DashboardSidebar({ user, mobileOpen, onMobileClose }) {
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <aside className="hidden lg:flex w-[220px] xl:w-[240px] shrink-0 flex-col bg-white border-r border-[#E2E8F0] min-h-screen sticky top-0">
+        <div className="flex items-center gap-2.5 px-5 py-5 border-b border-[#F1F5F9]">
+          <Logo />
+        </div>
+        <NavItems user={user} onNavigate={() => {}} />
+      </aside>
+
+      {/* Mobile drawer overlay */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm lg:hidden"
+          onClick={onMobileClose}
+        />
+      )}
+
+      {/* Mobile drawer */}
+      <div
+        className={`fixed top-0 left-0 z-50 h-full w-[260px] bg-white border-r border-[#E2E8F0] flex flex-col transform transition-transform duration-300 ease-out lg:hidden ${
+          mobileOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        {/* Drawer header */}
+        <div className="flex items-center justify-between px-5 py-5 border-b border-[#F1F5F9]">
+          <Logo />
+          <button
+            onClick={onMobileClose}
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-[#64748B] hover:text-[#0F172A] hover:bg-[#F8FAFC] transition-colors"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path
+                d="M2 2l12 12M14 2L2 14"
+                stroke="currentColor"
+                strokeWidth="1.75"
+                strokeLinecap="round"
+              />
+            </svg>
+          </button>
+        </div>
+
+        <NavItems user={user} onNavigate={onMobileClose} />
+      </div>
+    </>
   );
 }

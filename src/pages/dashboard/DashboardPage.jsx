@@ -11,8 +11,7 @@ import MonthlyChart from "../../components/dashboard/MonthlyChart";
 import ActivityFeed from "../../components/dashboard/ActivityFeed";
 import FollowUpAlert from "../../components/dashboard/FollowUpAlert";
 
-const BASE = "http://localhost:5000/api/v1";
-
+const BASE = import.meta.env.VITE_API_URL;
 function authHeaders() {
   const token = localStorage.getItem("token");
   return { headers: { Authorization: `Bearer ${token}` } };

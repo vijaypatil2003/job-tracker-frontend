@@ -3,33 +3,49 @@ import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../../layouts/DashboardLayout";
 import { getAllJobs, deleteJob } from "../../api/jobs.api";
-
+import InlineStatusSelect from "../../components/jobs/InlineStatusSelect";
+import HRCallDot from "../../components/jobs/HRCallDot";
 // Status config
 const STATUS_CONFIG = {
-  "Applied":         { color: "#3B82F6", bg: "#EFF6FF" },
-  "Interview":       { color: "#8B5CF6", bg: "#F5F3FF" },
-  "Assignment":      { color: "#F59E0B", bg: "#FFFBEB" },
-  "HR Round":        { color: "#EC4899", bg: "#FDF2F8" },
+  Applied: { color: "#3B82F6", bg: "#EFF6FF" },
+  Interview: { color: "#8B5CF6", bg: "#F5F3FF" },
+  Assignment: { color: "#F59E0B", bg: "#FFFBEB" },
+  "HR Round": { color: "#EC4899", bg: "#FDF2F8" },
   "Technical Round": { color: "#6366F1", bg: "#EEF2FF" },
-  "Offer Received":  { color: "#10B981", bg: "#ECFDF5" },
-  "Selected":        { color: "#059669", bg: "#D1FAE5" },
-  "Rejected":        { color: "#EF4444", bg: "#FEF2F2" },
-  "Not Applied":     { color: "#94A3B8", bg: "#F8FAFC" },
+  "Offer Received": { color: "#10B981", bg: "#ECFDF5" },
+  Selected: { color: "#059669", bg: "#D1FAE5" },
+  Rejected: { color: "#EF4444", bg: "#FEF2F2" },
+  "Not Applied": { color: "#94A3B8", bg: "#F8FAFC" },
 };
 
 const PRIORITY_CONFIG = {
-  "Urgent": { color: "#EF4444", bg: "#FEF2F2" },
-  "High":   { color: "#F59E0B", bg: "#FFFBEB" },
-  "Medium": { color: "#3B82F6", bg: "#EFF6FF" },
-  "Low":    { color: "#94A3B8", bg: "#F8FAFC" },
+  Urgent: { color: "#EF4444", bg: "#FEF2F2" },
+  High: { color: "#F59E0B", bg: "#FFFBEB" },
+  Medium: { color: "#3B82F6", bg: "#EFF6FF" },
+  Low: { color: "#94A3B8", bg: "#F8FAFC" },
 };
 
-const STATUS_FILTERS = ["All", "Applied", "Interview", "Assignment", "HR Round", "Technical Round", "Offer Received", "Selected", "Rejected", "Not Applied"];
+const STATUS_FILTERS = [
+  "All",
+  "Applied",
+  "Interview",
+  "Assignment",
+  "HR Round",
+  "Technical Round",
+  "Offer Received",
+  "Selected",
+  "Rejected",
+  "Not Applied",
+];
 const PER_PAGE = 10;
 
 function formatDate(d) {
   if (!d) return "—";
-  return new Date(d).toLocaleDateString("en-IN", { month: "short", day: "numeric", year: "numeric" });
+  return new Date(d).toLocaleDateString("en-IN", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 }
 
 function StatusBadge({ status }) {
@@ -56,7 +72,6 @@ function PriorityBadge({ priority }) {
     </span>
   );
 }
-
 function Avatar({ name }) {
   return (
     <div className="w-9 h-9 rounded-lg bg-[#EAF3F6] border border-[#E2E8F0] flex items-center justify-center text-[13px] font-semibold text-[#26A9C9] shrink-0">
@@ -81,9 +96,14 @@ function DeleteConfirmModal({ job, onConfirm, onCancel, isDeleting }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
       <div className="bg-white border border-[#E2E8F0] rounded-xl p-6 w-full max-w-sm mx-4 shadow-xl">
-        <h3 className="text-[15px] font-semibold text-[#0F172A] mb-1">Delete Application</h3>
+        <h3 className="text-[15px] font-semibold text-[#0F172A] mb-1">
+          Delete Application
+        </h3>
         <p className="text-[13px] text-[#64748B] mb-5">
-          Are you sure you want to delete <span className="font-medium text-[#0F172A]">{job?.jobRole}</span> at <span className="font-medium text-[#0F172A]">{job?.companyName}</span>? This cannot be undone.
+          Are you sure you want to delete{" "}
+          <span className="font-medium text-[#0F172A]">{job?.jobRole}</span> at{" "}
+          <span className="font-medium text-[#0F172A]">{job?.companyName}</span>
+          ? This cannot be undone.
         </p>
         <div className="flex gap-3">
           <button
@@ -93,13 +113,30 @@ function DeleteConfirmModal({ job, onConfirm, onCancel, isDeleting }) {
           >
             {isDeleting ? (
               <>
-                <svg className="animate-spin size-4" viewBox="0 0 24 24" fill="none">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                <svg
+                  className="animate-spin size-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                  />
                 </svg>
                 Deleting...
               </>
-            ) : "Delete"}
+            ) : (
+              "Delete"
+            )}
           </button>
           <button
             onClick={onCancel}
@@ -141,24 +178,33 @@ export default function JobsPage() {
     }
   };
 
-  const stats = useMemo(() => ({
-    total: jobs.length,
-    applied: jobs.filter((j) => j.status === "Applied").length,
-    inProcess: jobs.filter((j) => ["Interview", "HR Round", "Technical Round", "Assignment"].includes(j.status)).length,
-    selected: jobs.filter((j) => j.status === "Selected").length,
-    rejected: jobs.filter((j) => j.status === "Rejected").length,
-  }), [jobs]);
+  const stats = useMemo(
+    () => ({
+      total: jobs.length,
+      applied: jobs.filter((j) => j.status === "Applied").length,
+      inProcess: jobs.filter((j) =>
+        ["Interview", "HR Round", "Technical Round", "Assignment"].includes(
+          j.status,
+        ),
+      ).length,
+      selected: jobs.filter((j) => j.status === "Selected").length,
+      rejected: jobs.filter((j) => j.status === "Rejected").length,
+    }),
+    [jobs],
+  );
 
   const filtered = useMemo(() => {
     let list = [...jobs];
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
-      list = list.filter((j) =>
-        j.companyName?.toLowerCase().includes(q) ||
-        j.jobRole?.toLowerCase().includes(q)
+      list = list.filter(
+        (j) =>
+          j.companyName?.toLowerCase().includes(q) ||
+          j.jobRole?.toLowerCase().includes(q),
       );
     }
-    if (statusFilter !== "All") list = list.filter((j) => j.status === statusFilter);
+    if (statusFilter !== "All")
+      list = list.filter((j) => j.status === statusFilter);
     list.sort((a, b) => {
       const av = a[sortField] || "";
       const bv = b[sortField] || "";
@@ -173,7 +219,10 @@ export default function JobsPage() {
 
   const toggleSort = (field) => {
     if (sortField === field) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
-    else { setSortField(field); setSortDir("asc"); }
+    else {
+      setSortField(field);
+      setSortDir("asc");
+    }
   };
 
   const handleDelete = async () => {
@@ -183,10 +232,9 @@ export default function JobsPage() {
       await deleteJob(deleteTarget._id);
       setJobs((prev) => prev.filter((j) => j._id !== deleteTarget._id));
       setDeleteTarget(null);
-          toast.success("Application deleted.");
-
+      toast.success("Application deleted.");
     } catch (err) {
-          toast.error("Failed to delete. Try again.");
+      toast.error("Failed to delete. Try again.");
 
       console.error(err);
     } finally {
@@ -195,18 +243,43 @@ export default function JobsPage() {
   };
 
   const SortIcon = ({ field }) => {
-    if (sortField !== field) return (
-      <svg width="12" height="12" viewBox="0 0 16 16" fill="none" className="opacity-30">
-        <path d="M8 3v10M4 9l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    );
+    if (sortField !== field)
+      return (
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 16 16"
+          fill="none"
+          className="opacity-30"
+        >
+          <path
+            d="M8 3v10M4 9l4 4 4-4"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      );
     return sortDir === "asc" ? (
       <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
-        <path d="M8 13V3M4 7l4-4 4 4" stroke="#26A9C9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path
+          d="M8 13V3M4 7l4-4 4 4"
+          stroke="#26A9C9"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
       </svg>
     ) : (
       <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
-        <path d="M8 3v10M4 9l4 4 4-4" stroke="#26A9C9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path
+          d="M8 3v10M4 9l4 4 4-4"
+          stroke="#26A9C9"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
       </svg>
     );
   };
@@ -214,19 +287,27 @@ export default function JobsPage() {
   return (
     <DashboardLayout title="Applications">
       <div className="max-w-7xl mx-auto space-y-5">
-
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-[20px] font-bold text-[#0F172A]">Applications</h1>
-            <p className="text-[13px] text-[#64748B] mt-0.5">Track and manage your job hunt pipeline.</p>
+            <h1 className="text-[20px] font-bold text-[#0F172A]">
+              Applications
+            </h1>
+            <p className="text-[13px] text-[#64748B] mt-0.5">
+              Track and manage your job hunt pipeline.
+            </p>
           </div>
           <button
             onClick={() => navigate("/jobs/add")}
             className="flex items-center gap-1.5 px-4 h-[38px] bg-[#26A9C9] hover:bg-[#1F9DBD] text-white text-[13px] font-medium rounded-lg transition-colors"
           >
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-              <path d="M8 2v12M2 8h12" stroke="white" strokeWidth="2" strokeLinecap="round" />
+              <path
+                d="M8 2v12M2 8h12"
+                stroke="white"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
             </svg>
             Add Application
           </button>
@@ -241,28 +322,55 @@ export default function JobsPage() {
             { label: "Selected", value: stats.selected, color: "#10B981" },
             { label: "Rejected", value: stats.rejected, color: "#EF4444" },
           ].map((s) => (
-            <div key={s.label} className="bg-white border border-[#E2E8F0] rounded-xl p-4">
+            <div
+              key={s.label}
+              className="bg-white border border-[#E2E8F0] rounded-xl p-4"
+            >
               <p className="text-[12px] text-[#64748B]">{s.label}</p>
-              <p className="text-[22px] font-bold mt-0.5" style={{ color: s.color }}>{s.value}</p>
+              <p
+                className="text-[22px] font-bold mt-0.5"
+                style={{ color: s.color }}
+              >
+                {s.value}
+              </p>
             </div>
           ))}
         </div>
 
         {/* Table card */}
         <div className="bg-white border border-[#E2E8F0] rounded-xl overflow-hidden">
-
           {/* Toolbar */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 px-5 py-4 border-b border-[#F1F5F9]">
             {/* Search */}
             <div className="relative w-full sm:max-w-[260px]">
-              <svg className="absolute left-3 top-1/2 -translate-y-1/2" width="15" height="15" viewBox="0 0 16 16" fill="none">
-                <circle cx="6.5" cy="6.5" r="5" stroke="#94A3B8" strokeWidth="1.5" />
-                <path d="M10 10l3.5 3.5" stroke="#94A3B8" strokeWidth="1.5" strokeLinecap="round" />
+              <svg
+                className="absolute left-3 top-1/2 -translate-y-1/2"
+                width="15"
+                height="15"
+                viewBox="0 0 16 16"
+                fill="none"
+              >
+                <circle
+                  cx="6.5"
+                  cy="6.5"
+                  r="5"
+                  stroke="#94A3B8"
+                  strokeWidth="1.5"
+                />
+                <path
+                  d="M10 10l3.5 3.5"
+                  stroke="#94A3B8"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
               </svg>
               <input
                 type="text"
                 value={searchQuery}
-                onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setPage(1);
+                }}
                 placeholder="Search company or role..."
                 className="w-full h-[36px] pl-9 pr-3 text-sm text-[#1E293B] bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg outline-none placeholder:text-[#94A3B8] focus:border-[#26A9C9] focus:ring-2 focus:ring-[#26A9C9]/15 transition-all"
               />
@@ -270,10 +378,21 @@ export default function JobsPage() {
 
             {/* Status filters */}
             <div className="flex items-center gap-1 overflow-x-auto pb-0.5 sm:pb-0 flex-1">
-              {["All", "Applied", "Interview", "HR Round", "Technical Round", "Selected", "Rejected"].map((s) => (
+              {[
+                "All",
+                "Applied",
+                "Interview",
+                "HR Round",
+                "Technical Round",
+                "Selected",
+                "Rejected",
+              ].map((s) => (
                 <button
                   key={s}
-                  onClick={() => { setStatusFilter(s); setPage(1); }}
+                  onClick={() => {
+                    setStatusFilter(s);
+                    setPage(1);
+                  }}
                   className={`shrink-0 px-3 h-[32px] rounded-lg text-[12px] font-medium transition-colors ${
                     statusFilter === s
                       ? "bg-[#26A9C9] text-white"
@@ -299,7 +418,10 @@ export default function JobsPage() {
                     { label: "Applied", field: "appliedDate" },
                     { label: "Source", field: "source" },
                   ].map(({ label, field }) => (
-                    <th key={label} className="px-5 py-3 text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">
+                    <th
+                      key={label}
+                      className="px-5 py-3 text-[11px] font-semibold text-[#64748B] uppercase tracking-wider"
+                    >
                       <button
                         onClick={() => toggleSort(field)}
                         className="flex items-center gap-1.5 hover:text-[#26A9C9] transition-colors"
@@ -314,27 +436,52 @@ export default function JobsPage() {
               </thead>
               <tbody className="divide-y divide-[#F1F5F9]">
                 {loading ? (
-                  Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} />)
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <SkeletonRow key={i} />
+                  ))
                 ) : paginated.length === 0 ? (
                   <tr>
                     <td colSpan="7" className="px-6 py-14 text-center">
                       <div className="w-12 h-12 rounded-xl bg-[#EAF3F6] flex items-center justify-center mx-auto mb-3">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#26A9C9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <svg
+                          width="22"
+                          height="22"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="#26A9C9"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
                           <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
                           <polyline points="14 2 14 8 20 8" />
                         </svg>
                       </div>
-                      <p className="text-[14px] font-medium text-[#0F172A]">No applications found</p>
+                      <p className="text-[14px] font-medium text-[#0F172A]">
+                        No applications found
+                      </p>
                       <p className="text-[13px] text-[#94A3B8] mt-1">
-                        {searchQuery ? `No results for "${searchQuery}"` : "Start by adding your first job application."}
+                        {searchQuery
+                          ? `No results for "${searchQuery}"`
+                          : "Start by adding your first job application."}
                       </p>
                       {!searchQuery && (
                         <button
                           onClick={() => navigate("/jobs/add")}
                           className="mt-4 px-4 h-[36px] bg-[#26A9C9] hover:bg-[#1F9DBD] text-white text-[13px] font-medium rounded-lg transition-colors inline-flex items-center gap-1.5"
                         >
-                          <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-                            <path d="M8 2v12M2 8h12" stroke="white" strokeWidth="2" strokeLinecap="round" />
+                          <svg
+                            width="13"
+                            height="13"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                          >
+                            <path
+                              d="M8 2v12M2 8h12"
+                              stroke="white"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                            />
                           </svg>
                           Add Application
                         </button>
@@ -349,31 +496,99 @@ export default function JobsPage() {
                       className="group cursor-pointer hover:bg-[#F8FAFC] transition-colors"
                     >
                       {/* Role + Company */}
-                      <td className="px-5 py-4">
+                      {/* <td className="px-5 py-4">
                         <div className="flex items-center gap-3">
                           <Avatar name={job.companyName} />
                           <div>
-                            <p className="text-[13px] font-semibold text-[#0F172A]">{job.jobRole || "—"}</p>
-                            <p className="text-[12px] text-[#64748B]">{job.companyName || "—"}</p>
+                            <p className="text-[13px] font-semibold text-[#0F172A]">
+                              {job.jobRole || "—"}
+                            </p>
+                            <p className="text-[12px] text-[#64748B]">
+                              {job.companyName || "—"}
+                            </p>
                           </div>
                         </div>
-                      </td>
+                      </td> */}
+
+                      {/* TODO: delete this and uncomment above before deploymenet  */}
+                      {/* Role + Company */}
+                      <td className="px-5 py-4">
+  <div className="flex items-center gap-3">
+    <div className="relative inline-flex shrink-0">
+      <div className="w-9 h-9 rounded-lg bg-[#EAF3F6] border border-[#E2E8F0] flex items-center justify-center text-[13px] font-semibold text-[#26A9C9]">
+        {job.companyName?.charAt(0)?.toUpperCase() || "?"}
+      </div>
+      <div className="absolute -bottom-0.5 -right-0.5 z-10">
+        <HRCallDot
+          job={job}
+          onUpdated={(updatedJob) =>
+            setJobs((prev) =>
+              prev.map((j) => (j._id === updatedJob._id ? updatedJob : j))
+            )
+          }
+        />
+      </div>
+    </div>
+    <div>
+      <p className="text-[13px] font-semibold text-[#0F172A]">
+        {job.jobRole || "—"}
+      </p>
+      <p className="text-[12px] text-[#64748B]">
+        {job.companyName || "—"}
+      </p>
+    </div>
+  </div>
+</td>
 
                       {/* Location */}
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-1.5 text-[12px] text-[#64748B]">
-                          <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-                            <path d="M8 1.5C5.79 1.5 4 3.29 4 5.5c0 3.25 4 9 4 9s4-5.75 4-9c0-2.21-1.79-4-4-4z" stroke="currentColor" strokeWidth="1.25" />
-                            <circle cx="8" cy="5.5" r="1.5" stroke="currentColor" strokeWidth="1.25" />
+                          <svg
+                            width="13"
+                            height="13"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                          >
+                            <path
+                              d="M8 1.5C5.79 1.5 4 3.29 4 5.5c0 3.25 4 9 4 9s4-5.75 4-9c0-2.21-1.79-4-4-4z"
+                              stroke="currentColor"
+                              strokeWidth="1.25"
+                            />
+                            <circle
+                              cx="8"
+                              cy="5.5"
+                              r="1.5"
+                              stroke="currentColor"
+                              strokeWidth="1.25"
+                            />
                           </svg>
                           {job.location || "—"}
                         </div>
-                        <div className="text-[11px] text-[#94A3B8] mt-0.5">{job.jobType || "—"}</div>
+                        <div className="text-[11px] text-[#94A3B8] mt-0.5">
+                          {job.jobType || "—"}
+                        </div>
                       </td>
 
                       {/* Status */}
-                      <td className="px-5 py-4">
+                      {/* <td className="px-5 py-4">
                         <StatusBadge status={job.status} />
+                      </td> */}
+
+                      {/* Status — inline editable */}
+                      <td
+                        className="px-5 py-4"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <InlineStatusSelect
+                          job={job}
+                          onUpdated={(updatedJob) => {
+                            setJobs((prev) =>
+                              prev.map((j) =>
+                                j._id === updatedJob._id ? updatedJob : j,
+                              ),
+                            );
+                          }}
+                        />
                       </td>
 
                       {/* Priority */}
@@ -394,28 +609,52 @@ export default function JobsPage() {
                       {/* Actions */}
                       <td className="px-5 py-4">
                         <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    {job.jobUrl && (
-                      <a
-  
-    href={job.jobUrl}
-    target="_blank"
-    rel="noreferrer"
-    onClick={(e) => e.stopPropagation()}
-    className="w-7 h-7 rounded-lg flex items-center justify-center text-[#64748B] hover:text-[#26A9C9] hover:bg-[#EAF3F6] transition-colors"
-    title="Open job URL"
-  >
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-      <path d="M6 3H3a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1v-3M9 2h5v5M8 8l6-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  </a>
-)}
+                          {job.jobUrl && (
+                            <a
+                              href={job.jobUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="w-7 h-7 rounded-lg flex items-center justify-center text-[#64748B] hover:text-[#26A9C9] hover:bg-[#EAF3F6] transition-colors"
+                              title="Open job URL"
+                            >
+                              <svg
+                                width="14"
+                                height="14"
+                                viewBox="0 0 16 16"
+                                fill="none"
+                              >
+                                <path
+                                  d="M6 3H3a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1v-3M9 2h5v5M8 8l6-6"
+                                  stroke="currentColor"
+                                  strokeWidth="1.5"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                            </a>
+                          )}
                           <button
-                            onClick={(e) => { e.stopPropagation(); setDeleteTarget(job); }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDeleteTarget(job);
+                            }}
                             className="w-7 h-7 rounded-lg flex items-center justify-center text-[#64748B] hover:text-red-500 hover:bg-red-50 transition-colors"
                             title="Delete"
                           >
-                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                              <path d="M2 4h12M5 4V2h6v2M6 7v5M10 7v5M3 4l1 9a1 1 0 001 1h6a1 1 0 001-1l1-9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                            <svg
+                              width="14"
+                              height="14"
+                              viewBox="0 0 16 16"
+                              fill="none"
+                            >
+                              <path
+                                d="M2 4h12M5 4V2h6v2M6 7v5M10 7v5M3 4l1 9a1 1 0 001 1h6a1 1 0 001-1l1-9"
+                                stroke="currentColor"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
                             </svg>
                           </button>
                         </div>
@@ -431,7 +670,18 @@ export default function JobsPage() {
           {totalPages > 1 && (
             <div className="flex items-center justify-between px-5 py-4 border-t border-[#F1F5F9]">
               <span className="text-[12px] text-[#64748B]">
-                Showing <span className="font-medium text-[#0F172A]">{(page - 1) * PER_PAGE + 1}</span> to <span className="font-medium text-[#0F172A]">{Math.min(page * PER_PAGE, filtered.length)}</span> of <span className="font-medium text-[#0F172A]">{filtered.length}</span>
+                Showing{" "}
+                <span className="font-medium text-[#0F172A]">
+                  {(page - 1) * PER_PAGE + 1}
+                </span>{" "}
+                to{" "}
+                <span className="font-medium text-[#0F172A]">
+                  {Math.min(page * PER_PAGE, filtered.length)}
+                </span>{" "}
+                of{" "}
+                <span className="font-medium text-[#0F172A]">
+                  {filtered.length}
+                </span>
               </span>
               <div className="flex gap-2">
                 <button
@@ -469,9 +719,9 @@ export default function JobsPage() {
 
 // import React, { useState, useMemo, useEffect } from "react";
 // import { useNavigate } from "react-router-dom";
-// import { 
-//   Search, Plus, Download, MoreVertical, ExternalLink, 
-//   Mail, Phone, MapPin, Briefcase, ChevronUp, ChevronDown, 
+// import {
+//   Search, Plus, Download, MoreVertical, ExternalLink,
+//   Mail, Phone, MapPin, Briefcase, ChevronUp, ChevronDown,
 //   Inbox, Loader2, CheckCircle2, XCircle, Clock, FileText
 // } from "lucide-react";
 // // Assuming you have this layout and API setup
@@ -501,7 +751,7 @@ export default function JobsPage() {
 // const StatusBadge = ({ status }) => {
 //   const config = STATUS_CONFIG[status] || STATUS_CONFIG["Not Applied"];
 //   const Icon = config.icon;
-  
+
 //   return (
 //     <div className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium border ${config.bg} ${config.color} ${config.border}`}>
 //       <Icon className="h-3 w-3" />
@@ -572,7 +822,7 @@ export default function JobsPage() {
 //       );
 //     }
 //     if (statusFilter !== "All") list = list.filter((j) => j.status === statusFilter);
-    
+
 //     list.sort((a, b) => {
 //       const av = a[sortField] || "";
 //       const bv = b[sortField] || "";
@@ -601,7 +851,7 @@ export default function JobsPage() {
 //   return (
 //     <DashboardLayout>
 //       <div className="mx-auto w-full max-w-7xl px-4 py-8 text-zinc-50 sm:px-6 lg:px-8">
-        
+
 //         {/* Header Section */}
 //         <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 //           <div>
@@ -613,7 +863,7 @@ export default function JobsPage() {
 //               <Download className="h-4 w-4" />
 //               Export
 //             </button>
-//             <button 
+//             <button
 //               onClick={() => navigate("/jobs/new")}
 //               className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-white px-4 text-sm font-medium text-black transition-colors hover:bg-zinc-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-zinc-950"
 //             >
@@ -650,8 +900,8 @@ export default function JobsPage() {
 //                 key={s}
 //                 onClick={() => { setStatusFilter(s); setPage(1); }}
 //                 className={`rounded-md px-3 py-1.5 text-xs font-medium transition-all ${
-//                   statusFilter === s 
-//                     ? "bg-zinc-800 text-white shadow-sm" 
+//                   statusFilter === s
+//                     ? "bg-zinc-800 text-white shadow-sm"
 //                     : "text-zinc-400 hover:text-zinc-200"
 //                 }`}
 //               >
@@ -669,7 +919,7 @@ export default function JobsPage() {
 //                 <tr>
 //                   {[{ label: "Role", field: "jobRole" }, { label: "Contact", field: "hrEmail" }, { label: "Details", field: "location" }, { label: "Status", field: "status" }, { label: "Applied", field: "appliedDate" }].map(({ label, field }) => (
 //                     <th key={label} className="px-6 py-4 font-medium">
-//                       <button 
+//                       <button
 //                         onClick={() => toggleSort(field)}
 //                         className="group flex items-center gap-1 hover:text-zinc-300"
 //                       >
@@ -700,7 +950,7 @@ export default function JobsPage() {
 //                   </tr>
 //                 ) : (
 //                   paginated.map((job) => (
-//                     <tr 
+//                     <tr
 //                       key={job._id}
 //                       onClick={() => navigate(`/jobs/${job._id}`)}
 //                       className="group cursor-pointer transition-colors hover:bg-zinc-800/40"
@@ -756,9 +1006,9 @@ export default function JobsPage() {
 //                       <td className="px-6 py-4 text-right">
 //                         <div className="flex items-center justify-end gap-2 opacity-0 transition-opacity group-hover:opacity-100">
 //                           {job.jobUrl && (
-//                             <a 
-//                               href={job.jobUrl} 
-//                               target="_blank" 
+//                             <a
+//                               href={job.jobUrl}
+//                               target="_blank"
 //                               rel="noreferrer"
 //                               onClick={(e) => e.stopPropagation()}
 //                               className="rounded-md p-1.5 text-zinc-400 hover:bg-zinc-700 hover:text-white"
@@ -766,7 +1016,7 @@ export default function JobsPage() {
 //                               <ExternalLink className="h-4 w-4" />
 //                             </a>
 //                           )}
-//                           <button 
+//                           <button
 //                             onClick={(e) => { e.stopPropagation(); /* handle context menu */ }}
 //                             className="rounded-md p-1.5 text-zinc-400 hover:bg-zinc-700 hover:text-white"
 //                           >

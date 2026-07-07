@@ -25,6 +25,7 @@ export default function DashboardPage() {
   const [activity, setActivity] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -49,9 +50,13 @@ export default function DashboardPage() {
       setMonthly(monthlyRes.data.data);
       setActivity(activityRes.data.data);
 
-      // Get user from token or profile
-      const profileRes = await axios.get(`${BASE}/profile`, authHeaders());
-      setUser(profileRes.data.data);
+      // Profile fetch isolated — a missing profile should NOT break the dashboard
+      try {
+        const profileRes = await axios.get(`${BASE}/profile`, authHeaders());
+        setUser(profileRes.data.data);
+      } catch (profileErr) {
+        setUser(null);
+      }
     } catch (err) {
       if (err?.response?.status === 401) {
         localStorage.removeItem("token");
@@ -112,11 +117,19 @@ export default function DashboardPage() {
   return (
     <div className="flex min-h-screen bg-[#EAF3F6] font-sans">
       {/* Sidebar */}
-      <DashboardSidebar user={user} />
+      <DashboardSidebar
+        user={user}
+        mobileOpen={mobileOpen}
+        onMobileClose={() => setMobileOpen(false)}
+      />
 
       {/* Main */}
       <div className="flex-1 min-w-0 flex flex-col">
-        <DashboardTopbar title="Dashboard" user={user} />
+        <DashboardTopbar
+          title="Dashboard"
+          user={user}
+          onMenuClick={() => setMobileOpen(true)}
+        />
 
         <main className="flex-1 px-4 sm:px-6 py-6 space-y-5 max-w-6xl w-full mx-auto">
           {/* Follow-up alerts */}

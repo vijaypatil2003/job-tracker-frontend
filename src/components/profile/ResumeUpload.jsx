@@ -15,13 +15,17 @@ export default function ResumeUpload({ onParsed }) {
 
     const formData = new FormData();
     formData.append("resume", file);
-
+    //TODO : we have to change the   const res with actual url
     try {
       setState("parsing");
       const BASE = import.meta.env.VITE_API_URL;
-      const res = await axios.post("BASE/resume/parse/parse-resume", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const res = await axios.post(
+        "http://localhost:5000/api/v1/resume/parse/parse-resume",
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        },
+      );
       if (res.data?.success) {
         setState("success");
         onParsed(res.data.data);

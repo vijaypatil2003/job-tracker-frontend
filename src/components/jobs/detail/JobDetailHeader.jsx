@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import HRCallDot from "../HRCallDot";
 
 const STATUS_CONFIG = {
   Applied: { color: "#3B82F6", bg: "#EFF6FF" },
@@ -31,8 +32,18 @@ export default function JobDetailHeader({ job, onDelete }) {
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-4">
           {/* Avatar */}
-          <div className="w-12 h-12 rounded-xl bg-[#EAF3F6] border border-[#E2E8F0] flex items-center justify-center text-[18px] font-bold text-[#26A9C9] shrink-0">
-            {job?.companyName?.charAt(0)?.toUpperCase() || "?"}
+          {/* Avatar */}
+          <div className="relative inline-flex shrink-0">
+            <div className="w-12 h-12 rounded-xl bg-[#EAF3F6] border border-[#E2E8F0] flex items-center justify-center text-[18px] font-bold text-[#26A9C9]">
+              {job?.companyName?.charAt(0)?.toUpperCase() || "?"}
+            </div>
+            {/* HR Call status dot */}
+            <div className="absolute -bottom-0.5 -right-0.5">
+              <HRCallDot
+                job={job}
+                onUpdated={(updatedJob) => onUpdated?.(updatedJob)}
+              />
+            </div>
           </div>
           <div>
             <h1 className="text-[18px] font-bold text-[#0F172A]">

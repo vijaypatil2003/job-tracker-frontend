@@ -11,6 +11,8 @@ import JobsPage from "../pages/jobs/JobsPage";
 import ProtectedRoute from "./ProtectedRoute";
 import JobDetailPage from "../pages/jobs/JobDetailPage";
 import EditJobPage from "../pages/jobs/EditJobPage";
+import NotFoundPage from "../pages/NotFoundPage";
+import RemindersPage from "../pages/reminders/RemindersPage";
 
 export default function AppRoutes() {
   return (
@@ -30,6 +32,8 @@ export default function AppRoutes() {
         <Route path="/jobs/detailed-add" element={<DetailedAddJobPage />} />
         <Route path="/jobs/:id" element={<JobDetailPage />} />
         <Route path="/jobs/:id/edit" element={<EditJobPage />} />
+        <Route path="*" element={<NotFoundPage />} />
+        <Route path="/reminders" element={<RemindersPage />} />
       </Route>
     </Routes>
   );

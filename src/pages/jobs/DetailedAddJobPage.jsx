@@ -17,7 +17,9 @@ import { toast } from "react-toastify";
 const jobSchema = z.object({
   companyName: z.string().min(2, "Company name is required."),
   jobRole: z.string().min(2, "Job role is required."),
-  jobUrl: z.string().url("Must be a valid URL.").or(z.literal("")),
+  // jobUrl: z.string().url("Must be a valid URL.").or(z.literal("")),
+  jobUrl: z.string().optional(),
+
   location: z.string().optional(),
   jobType: z.enum([
     "Full-time",
@@ -53,7 +55,9 @@ const jobSchema = z.object({
   salary: z.string().optional(),
   expectedSalary: z.string().optional(),
   hrName: z.string().optional(),
-  hrEmail: z.string().email("Invalid email.").or(z.literal("")),
+  // hrEmail: z.string().email("Invalid email.").or(z.literal("")),
+  hrEmail: z.string().optional(),
+
   phone: z.string().optional(),
   appliedDate: z.string().optional(),
   followUpDate: z.string().optional(),
